@@ -1,0 +1,3011 @@
+{
+  "Mappings": {
+    "d0": {
+      "DNS": {
+        "Suffix": "accint.co",
+        "Zone": "Z2IAX7BYTA3T14"
+      },
+      "Extras": {
+        "Tag": "Dev"
+      },
+      "HdpNet": {
+        "CIDR": "10.2.7.144/28",
+        "Name": "TestHdpNet"
+      },
+      "Key": {
+        "KeyName": "aim-dev-key"
+      },
+      "RS": {
+        "CIDR": "10.2.7.160/28",
+        "DNS": "edw"
+      },
+      "TalendNet": {
+        "CIDR": "10.2.7.128/28",
+        "Name": "TestAimTalendNet"
+      }
+    },
+    "d1": {
+      "DNS": {
+        "Suffix": "accint.co",
+        "Zone": "Z2IAX7BYTA3T14"
+      },
+      "Extras": {
+        "Tag": "Dev"
+      },
+      "HdpNet": {
+        "CIDR": "10.2.1.128/27",
+        "Name": "TestHdpNet"
+      },
+      "Key": {
+        "KeyName": "aim-dev-key"
+      },
+      "RS": {
+        "CIDR": "10.2.2.112/28",
+        "DNS": "edw"
+      },
+      "TalendNet": {
+        "CIDR": "10.2.1.160/28",
+        "Name": "TestAimTalendNet"
+      }
+    },
+    "d2": {
+      "DNS": {
+        "Suffix": "accint.co",
+        "Zone": "Z2IAX7BYTA3T14"
+      },
+      "Extras": {
+        "Tag": "Dev"
+      },
+      "HdpNet": {
+        "CIDR": "10.2.6.208/28",
+        "Name": "TestHdpNet"
+      },
+      "Key": {
+        "KeyName": "aim-dev-key"
+      },
+      "RS": {
+        "CIDR": "10.2.6.224/28",
+        "DNS": "edw"
+      },
+      "TalendNet": {
+        "CIDR": "10.2.6.192/28",
+        "Name": "TestAimTalendNet"
+      }
+    },
+    "t0": {
+      "DNS": {
+        "Suffix": "accint.co",
+        "Zone": "Z2IAX7BYTA3T14"
+      },
+      "Extras": {
+        "Tag": "Test"
+      },
+      "HdpNet": {
+        "CIDR": "10.2.1.96/27",
+        "Name": "TestHdpNet"
+      },
+      "Key": {
+        "KeyName": "aim-test-key"
+      },
+      "RS": {
+        "CIDR": "10.2.2.96/28",
+        "DNS": "edw"
+      },
+      "TalendNet": {
+        "CIDR": "10.2.1.80/28",
+        "Name": "TestAimTalendNet"
+      }
+    }
+  },
+  "Parameters": {
+    "RSPassword": {
+      "Description": "The password associated with the master user account for the redshift cluster that is being created.",
+      "NoEcho": true,
+      "Type": "String"
+    },
+    "StackName": {
+      "AllowedPattern": "[-a-z0-9]*",
+      "ConstraintDescription": "can contain only alphanumeric characters and dashes",
+      "Default": "d1",
+      "Description": "Stack Name",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "AimHdpNetAcl": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "AimHdpNetAcl"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::NetworkAcl"
+    },
+    "HdpNetAclInDnsUdp": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "106"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclInNtp": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "123",
+          "To": "123"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "103"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclInSsh": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "22",
+          "To": "22"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclInTcpHighInternal": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "1024",
+          "To": "65535"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "101"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclInTcpHighVpn": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "1024",
+          "To": "65535"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "104"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclInUdpHigh": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "1024",
+          "To": "65535"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "102"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclInWebVpn": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "false",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "80",
+          "To": "80"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "105"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut137": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "137",
+          "To": "137"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "112"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut139": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "139",
+          "To": "139"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "109"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut25Tcp": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "25",
+          "To": "25"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "115"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut389": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "389",
+          "To": "389"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "111"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut389Tcp": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "389",
+          "To": "389"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "113"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut445": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "445",
+          "To": "445"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "110"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOut53Tcp": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "114"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutDns": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "107"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutHttp": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "80",
+          "To": "80"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutHttps": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "443",
+          "To": "443"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "101"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutNtp": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "123",
+          "To": "123"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "102"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutSsh": {
+      "Properties": {
+        "CidrBlock": "10.2.0.0/16",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "22",
+          "To": "22"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "108"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutTcpHigh": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "1024",
+          "To": "65535"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "103"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutTcpKdc": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "88",
+          "To": "88"
+        },
+        "Protocol": "6",
+        "RuleAction": "Allow",
+        "RuleNumber": "105"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutUdpHigh": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "1024",
+          "To": "65535"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "104"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "HdpNetAclOutUdpKdc": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/8",
+        "Egress": "true",
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "PortRange": {
+          "From": "88",
+          "To": "88"
+        },
+        "Protocol": "17",
+        "RuleAction": "Allow",
+        "RuleNumber": "106"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "IntegrationPolicy": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      "accolade-aim-",
+                      {
+                        "Ref": "StackName"
+                      },
+                      "-edw"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      "accolade-aim-",
+                      {
+                        "Ref": "StackName"
+                      },
+                      "-edw/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TalendRole",
+                    "Arn"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "PolicyName": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "StackName"
+              },
+              "talend"
+            ]
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "TalendRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Policy"
+    },
+    "MdmSecGrp": {
+      "Properties": {
+        "GroupDescription": "Mdm Sec Grp",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "80",
+            "IpProtocol": "tcp",
+            "ToPort": "80"
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "123",
+            "IpProtocol": "udp",
+            "ToPort": "123"
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "443",
+            "IpProtocol": "tcp",
+            "ToPort": "443"
+          },
+          {
+            "CidrIp": "10.2.0.0/16",
+            "FromPort": "1433",
+            "IpProtocol": "tcp",
+            "ToPort": "1433"
+          },
+          {
+            "CidrIp": "10.2.0.0/16",
+            "FromPort": "3306",
+            "IpProtocol": "tcp",
+            "ToPort": "3306"
+          },
+          {
+            "CidrIp": "10.2.0.0/16",
+            "FromPort": "8020",
+            "IpProtocol": "tcp",
+            "ToPort": "8020"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "10.11.250.0/23",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.101.16.0/21",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.35.35.0/24",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.10.10.0/23",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.35.35.74/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.74/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.74/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.35.35.96/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.96/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.96/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.35.35.38/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.38/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.38/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.35.35.64/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.64/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.64/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.10.10.27/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.10.10.27/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.10.10.27/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.35.35.103/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.103/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.103/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.35.35.48/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.35.35.48/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.35.35.48/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          },
+          {
+            "CidrIp": "10.101.16.160/32",
+            "FromPort": "1098",
+            "IpProtocol": "tcp",
+            "ToPort": "1099"
+          },
+          {
+            "CidrIp": "10.101.16.160/32",
+            "FromPort": "3873",
+            "IpProtocol": "tcp",
+            "ToPort": "4445"
+          },
+          {
+            "CidrIp": "10.101.16.160/32",
+            "FromPort": "8009",
+            "IpProtocol": "tcp",
+            "ToPort": "8443"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MdmSecGrp"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "RSCluster": {
+      "DeletionPolicy": "Snapshot",
+      "Properties": {
+        "AutomatedSnapshotRetentionPeriod": "30",
+        "ClusterParameterGroupName": {
+          "Ref": "RSParamGrp"
+        },
+        "ClusterSubnetGroupName": {
+          "Ref": "RSNetGrp"
+        },
+        "ClusterType": "multi-node",
+        "DBName": "edw",
+        "Encrypted": "true",
+        "MasterUserPassword": {
+          "Ref": "RSPassword"
+        },
+        "MasterUsername": "edw",
+        "NodeType": "dc1.large",
+        "NumberOfNodes": "3",
+        "PreferredMaintenanceWindow": "Sat:05:00-Sat:06:00",
+        "PubliclyAccessible": "false",
+        "VpcSecurityGroupIds": [
+          {
+            "Ref": "RSSecGrp"
+          }
+        ]
+      },
+      "Type": "AWS::Redshift::Cluster"
+    },
+    "RSDns": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "RS",
+                  "DNS"
+                ]
+              },
+              {
+                "Ref": "StackName"
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::GetAtt": [
+                    "RSCluster",
+                    "Endpoint.Address"
+                  ]
+                },
+                "."
+              ]
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "CNAME"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "RSNetGrp": {
+      "Properties": {
+        "Description": "AIM RS Subnet Group",
+        "SubnetIds": [
+          {
+            "Ref": "RSSubnet"
+          }
+        ]
+      },
+      "Type": "AWS::Redshift::ClusterSubnetGroup"
+    },
+    "RSParamGrp": {
+      "Properties": {
+        "Description": "AIM RS Param Group",
+        "ParameterGroupFamily": "redshift-1.0",
+        "Parameters": [
+          {
+            "ParameterName": "require_ssl",
+            "ParameterValue": "true"
+          },
+          {
+            "ParameterName": "enable_user_activity_logging",
+            "ParameterValue": "true"
+          }
+        ]
+      },
+      "Type": "AWS::Redshift::ClusterParameterGroup"
+    },
+    "RSSecGrp": {
+      "Properties": {
+        "GroupDescription": "Test VPC AIM RS Sec Grp",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "5439",
+            "IpProtocol": "tcp",
+            "ToPort": "5439"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "RSSecGrp"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "RSSubnet": {
+      "Properties": {
+        "AvailabilityZone": "us-east-1a",
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "RS",
+            "CIDR"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "RSSubnet"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "TalendProfile": {
+      "Properties": {
+        "Path": {
+          "Fn::Join": [
+            "",
+            [
+              "/aim/",
+              {
+                "Ref": "StackName"
+              },
+              "/"
+            ]
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "TalendRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::InstanceProfile"
+    },
+    "TalendRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": {
+            "Action": [
+              "sts:AssumeRole"
+            ],
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "ec2.amazonaws.com"
+              ]
+            }
+          }
+        },
+        "Path": {
+          "Fn::Join": [
+            "",
+            [
+              "/aim/",
+              {
+                "Ref": "StackName"
+              },
+              "/"
+            ]
+          ]
+        }
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "TestAimHdpAclNetAssociation": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "SubnetId": {
+          "Ref": "TestAimHdpNet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "TestAimHdpNet": {
+      "Properties": {
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "HdpNet",
+            "CIDR"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TestAimHdpNet"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "TestAimHdpRtNetAssociation": {
+      "Properties": {
+        "RouteTableId": "rtb-052f5f60",
+        "SubnetId": {
+          "Ref": "TestAimHdpNet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "TestAimHdpSecGrp": {
+      "Properties": {
+        "GroupDescription": "Test VPC AIM HDP and Talend Sec Grp",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "80",
+            "IpProtocol": "tcp",
+            "ToPort": "80"
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "123",
+            "IpProtocol": "udp",
+            "ToPort": "123"
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "443",
+            "IpProtocol": "tcp",
+            "ToPort": "443"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "88",
+            "IpProtocol": "udp",
+            "ToPort": "88"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "88",
+            "IpProtocol": "tcp",
+            "ToPort": "88"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "1024",
+            "IpProtocol": "tcp",
+            "ToPort": "65535"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "1024",
+            "IpProtocol": "udp",
+            "ToPort": "65535"
+          },
+          {
+            "CidrIp": "10.2.0.0/16",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "53",
+            "IpProtocol": "udp",
+            "ToPort": "53"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "53",
+            "IpProtocol": "tcp",
+            "ToPort": "53"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "139",
+            "IpProtocol": "tcp",
+            "ToPort": "139"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "445",
+            "IpProtocol": "tcp",
+            "ToPort": "445"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "389",
+            "IpProtocol": "udp",
+            "ToPort": "389"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "389",
+            "IpProtocol": "tcp",
+            "ToPort": "389"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "137",
+            "IpProtocol": "udp",
+            "ToPort": "137"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "25",
+            "IpProtocol": "tcp",
+            "ToPort": "25"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "10.11.250.0/23",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.101.16.0/21",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.35.35.0/24",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.10.10.0/23",
+            "FromPort": "22",
+            "IpProtocol": "tcp",
+            "ToPort": "22"
+          },
+          {
+            "CidrIp": "10.2.0.0/16",
+            "FromPort": "1024",
+            "IpProtocol": "tcp",
+            "ToPort": "65535"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "80",
+            "IpProtocol": "tcp",
+            "ToPort": "80"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "7520",
+            "IpProtocol": "tcp",
+            "ToPort": "7520"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "3306",
+            "IpProtocol": "tcp",
+            "ToPort": "3306"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "10000",
+            "IpProtocol": "tcp",
+            "ToPort": "10000"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "50010",
+            "IpProtocol": "tcp",
+            "ToPort": "50010"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "50070",
+            "IpProtocol": "tcp",
+            "ToPort": "50070"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "8088",
+            "IpProtocol": "tcp",
+            "ToPort": "8088"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "11000",
+            "IpProtocol": "tcp",
+            "ToPort": "11000"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "15000",
+            "IpProtocol": "tcp",
+            "ToPort": "15000"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "8744",
+            "IpProtocol": "tcp",
+            "ToPort": "8744"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "19888",
+            "IpProtocol": "tcp",
+            "ToPort": "19888"
+          },
+          {
+            "CidrIp": "10.35.35.45/32",
+            "FromPort": "8042",
+            "IpProtocol": "tcp",
+            "ToPort": "8042"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "7000",
+            "IpProtocol": "tcp",
+            "ToPort": "7000"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "7001",
+            "IpProtocol": "tcp",
+            "ToPort": "7001"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8000",
+            "IpProtocol": "tcp",
+            "ToPort": "8000"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8001",
+            "IpProtocol": "tcp",
+            "ToPort": "8001"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8020",
+            "IpProtocol": "tcp",
+            "ToPort": "8020"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8040",
+            "IpProtocol": "tcp",
+            "ToPort": "8040"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8080",
+            "IpProtocol": "tcp",
+            "ToPort": "8080"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8180",
+            "IpProtocol": "tcp",
+            "ToPort": "8180"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8888",
+            "IpProtocol": "tcp",
+            "ToPort": "8888"
+          },
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "8580",
+            "IpProtocol": "tcp",
+            "ToPort": "8580"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TestAimHdpSecGrp"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "TestAimRSAclNetAssociation": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "SubnetId": {
+          "Ref": "RSSubnet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "TestAimRSRtNetAssociation": {
+      "Properties": {
+        "RouteTableId": "rtb-052f5f60",
+        "SubnetId": {
+          "Ref": "RSSubnet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "TestAimTalendAclNetAssociation": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "AimHdpNetAcl"
+        },
+        "SubnetId": {
+          "Ref": "TestAimTalendNet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "TestAimTalendNet": {
+      "Properties": {
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "TalendNet",
+            "CIDR"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TestAimTalendNet"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          }
+        ],
+        "VpcId": "vpc-b7c9a9d2"
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "TestAimTalendRtNetAssociation": {
+      "Properties": {
+        "RouteTableId": "rtb-052f5f60",
+        "SubnetId": {
+          "Ref": "TestAimTalendNet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "UE1EDWLA01": {
+      "Properties": {
+        "IamInstanceProfile": {
+          "Ref": "TalendProfile"
+        },
+        "ImageId": "ami-6905f002",
+        "InstanceType": "m3.large",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimTalendNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-EDW-LA01",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Edw"
+          },
+          {
+            "Key": "Service",
+            "Value": "JobsServer"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-EDW-LA01",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-EDW-LA01",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "write_files:\n",
+                " - path: /root/.pgpass\n",
+                "   permissions: '0600'\n",
+                "   content: |\n",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "     edw.",
+                      {
+                        "Ref": "StackName"
+                      },
+                      ".aim.local:edw:edw:",
+                      {
+                        "Ref": "RSPassword"
+                      }
+                    ]
+                  ]
+                },
+                "\n"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1EDWLA01DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-EDW-LA01",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1EDWLA01",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1HDPLA01": {
+      "Properties": {
+        "ImageId": "ami-4bc23020",
+        "InstanceType": "m3.large",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimHdpNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-HDP-LA01",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Hadoop"
+          },
+          {
+            "Key": "Service",
+            "Value": "NameNode"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-HDP-LA01",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-HDP-LA01",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_ambari ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1HDPLA01DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-HDP-LA01",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1HDPLA01",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1HDPLA02": {
+      "Properties": {
+        "ImageId": "ami-42b9232a",
+        "InstanceType": "m3.large",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimHdpNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-HDP-LA02",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Hadoop"
+          },
+          {
+            "Key": "Service",
+            "Value": "DataNode"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-HDP-LA02",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-HDP-LA02",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_talend_data ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1HDPLA02DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-HDP-LA02",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1HDPLA02",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1HDPLA03": {
+      "Properties": {
+        "ImageId": "ami-42b9232a",
+        "InstanceType": "m3.large",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimHdpNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-HDP-LA03",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Hadoop"
+          },
+          {
+            "Key": "Service",
+            "Value": "DataNode"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-HDP-LA03",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-HDP-LA03",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_talend_data ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1HDPLA03DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-HDP-LA03",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1HDPLA03",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1HDPLA04": {
+      "Properties": {
+        "ImageId": "ami-42b9232a",
+        "InstanceType": "m3.large",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimHdpNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-HDP-LA04",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Hadoop"
+          },
+          {
+            "Key": "Service",
+            "Value": "DataNode"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-HDP-LA04",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-HDP-LA04",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_talend_data ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1HDPLA04DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-HDP-LA04",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1HDPLA04",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1MDMLA01": {
+      "Properties": {
+        "ImageId": "ami-6905f002",
+        "InstanceType": "r3.xlarge",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "MdmSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimTalendNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-MDM-LA01",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Talend"
+          },
+          {
+            "Key": "Service",
+            "Value": "Mdm"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-MDM-LA01",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-MDM-LA01",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_tal_mdm ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1MDMLA01DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-MDM-LA01",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1MDMLA01",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1TALLA01": {
+      "Properties": {
+        "ImageId": "ami-6905f002",
+        "InstanceType": "m3.xlarge",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimTalendNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-TAL-LA01",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Talend"
+          },
+          {
+            "Key": "Service",
+            "Value": "Tac"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-TAL-LA01",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-TAL-LA01",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_tal_app ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1TALLA01DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-TAL-LA01",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1TALLA01",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "UE1TALLA02": {
+      "Properties": {
+        "ImageId": "ami-6905f002",
+        "InstanceType": "m3.xlarge",
+        "KeyName": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "Key",
+            "KeyName"
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "false",
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "TestAimHdpSecGrp"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "TestAimTalendNet"
+            }
+          }
+        ],
+        "SourceDestCheck": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "UE1-TAL-LA02",
+                  {
+                    "Ref": "StackName"
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "workload",
+            "Value": "parttime_aim"
+          },
+          {
+            "Key": "Billing",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Group",
+            "Value": "AIM"
+          },
+          {
+            "Key": "Owner",
+            "Value": "Mike D."
+          },
+          {
+            "Key": "Env",
+            "Value": {
+              "Fn::FindInMap": [
+                {
+                  "Ref": "StackName"
+                },
+                "Extras",
+                "Tag"
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Talend"
+          },
+          {
+            "Key": "Service",
+            "Value": "Tac"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\nhostname: ",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "UE1-TAL-LA02",
+                      {
+                        "Ref": "StackName"
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "fqdn: ",
+                {
+                  "Fn::Join": [
+                    ".",
+                    [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "UE1-TAL-LA02",
+                            {
+                              "Ref": "StackName"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::FindInMap": [
+                          {
+                            "Ref": "StackName"
+                          },
+                          "DNS",
+                          "Suffix"
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                "\n",
+                "runcmd:\n",
+                "- [ touch, /etc/aim_tal_app ]"
+              ]
+            ]
+          }
+        }
+      },
+      "Type": "AWS::EC2::Instance"
+    },
+    "UE1TALLA02DNS": {
+      "Properties": {
+        "HostedZoneId": {
+          "Fn::FindInMap": [
+            {
+              "Ref": "StackName"
+            },
+            "DNS",
+            "Zone"
+          ]
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Fn::Join": [
+                  "",
+                  [
+                    "UE1-TAL-LA02",
+                    {
+                      "Ref": "StackName"
+                    }
+                  ]
+                ]
+              },
+              {
+                "Fn::FindInMap": [
+                  {
+                    "Ref": "StackName"
+                  },
+                  "DNS",
+                  "Suffix"
+                ]
+              }
+            ]
+          ]
+        },
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": [
+              "UE1TALLA02",
+              "PrivateIp"
+            ]
+          }
+        ],
+        "TTL": "60",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    }
+  }
+}
